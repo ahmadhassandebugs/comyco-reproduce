@@ -1,4 +1,6 @@
-# comyco-reproduce
+# Reproduce comyco results
+
+Using [comyco-lin](https://github.com/godka/comyco-lin) repo to generate results.
 
 ## Setup
 
