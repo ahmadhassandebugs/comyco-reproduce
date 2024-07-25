@@ -17,6 +17,7 @@ A_DIM = 6
 ACTOR_LR_RATE = 1e-4
 TRAIN_SEQ_LEN = 1000  # take as a train batch
 TRAIN_EPOCH = 500
+BATCH_SIZE = 2048  # default: 256
 MODEL_SAVE_INTERVAL = 10
 RANDOM_SEED = 42
 SUMMARY_DIR = './comyco'
@@ -29,14 +30,15 @@ LOG_FILE = SUMMARY_DIR + '/log'
 if not os.path.exists(SUMMARY_DIR):
     os.makedirs(SUMMARY_DIR)
 
-NN_MODEL = None    
+NN_MODEL = None
+
 
 def testing(epoch, nn_model, log_file):
     # clean up the test results folder
     os.system('rm -r ' + TEST_LOG_FOLDER)
     if not os.path.exists(TEST_LOG_FOLDER):
         os.makedirs(TEST_LOG_FOLDER)
-    
+
     # run test script
     os.system('python test.py ' + nn_model)
 
@@ -75,7 +77,8 @@ def testing(epoch, nn_model, log_file):
     log_file.flush()
 
     return rewards_mean, np.mean(entropies)
-        
+
+
 def main():
     env = ABREnv(random_seed=42)
     with tf.Session() as sess, open(LOG_FILE + '_test.txt', 'w') as test_log_file:
@@ -94,7 +97,7 @@ def main():
         if nn_model is not None:  # nn_model is the path to file
             saver.restore(sess, nn_model)
             print("Model restored.")
-        
+
         actor_pool = pool.pool()
         for epoch in tqdm(range(TRAIN_EPOCH + 1)):
             obs = env.reset()
@@ -110,8 +113,8 @@ def main():
                 action_vec = np.zeros(A_DIM)
                 action_vec[opt_bit_rate] = 1
                 actor_pool.submit(obs, action_vec)
-                
-                s_batch, a_batch = actor_pool.get()
+
+                s_batch, a_batch = actor_pool.get(BATCH_SIZE)
                 actor.train(s_batch, a_batch)
 
                 obs, rew, done, info = env.step(bit_rate)
@@ -125,8 +128,8 @@ def main():
                 save_path = saver.save(sess, SUMMARY_DIR + "/nn_model_ep_" +
                                        str(epoch) + ".ckpt")
                 avg_reward, avg_entropy = testing(epoch,
-                    SUMMARY_DIR + "/nn_model_ep_" + str(epoch) + ".ckpt", 
-                    test_log_file)
+                                                  SUMMARY_DIR + "/nn_model_ep_" + str(epoch) + ".ckpt",
+                                                  test_log_file)
 
                 summary_str = sess.run(summary_ops, feed_dict={
                     summary_vars[0]: avg_reward,
@@ -134,6 +137,7 @@ def main():
                 })
                 writer.add_summary(summary_str, epoch)
                 writer.flush()
+
 
 def build_summaries():
     eps_total_reward = tf.Variable(0.)
@@ -145,6 +149,7 @@ def build_summaries():
     summary_ops = tf.summary.merge_all()
 
     return summary_ops, summary_vars
+
 
 if __name__ == '__main__':
     main()

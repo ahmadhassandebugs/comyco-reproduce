@@ -1,7 +1,7 @@
 import os
 import numpy as np
 import matplotlib.pyplot as plt
-from matplotlib.pyplot import plot, savefig
+from matplotlib.pyplot import savefig
 import matplotlib
 import sys
 
@@ -23,8 +23,8 @@ SCHEMES = ['sim_cmc', 'sim_rl']
 labels = ['Comyco', 'Pensieve']
 LW = 2.5
 
-def main():
 
+def main():
     time_all = {}
     bit_rate_all = {}
     buff_all = {}
@@ -58,7 +58,7 @@ def main():
                 bit_rate.append(float(parse[1]))
                 buff.append(float(parse[2]))
                 bw.append(float(parse[4]) / float(parse[5])
-                            * BITS_IN_BYTE * MILLISEC_IN_SEC / M_IN_B)
+                          * BITS_IN_BYTE * MILLISEC_IN_SEC / M_IN_B)
                 reward.append(float(parse[-1]))
 
         for scheme in SCHEMES:
@@ -71,7 +71,7 @@ def main():
                     'log_' + str(scheme) + '_'):]] = buff
                 bw_all[scheme][log_file[len('log_' + str(scheme) + '_'):]] = bw
                 raw_reward_all[scheme][log_file[len(
-                    'log_' + str(scheme) + '_'):]] = reward #np.clip(reward, 0., 100.)
+                    'log_' + str(scheme) + '_'):]] = reward  # np.clip(reward, 0., 100.)
                 break
 
     # ---- ---- ---- ----
@@ -111,20 +111,21 @@ def main():
     plt.rcParams['axes.labelsize'] = 16
     font = {'size': 16}
     matplotlib.rc('font', **font)
-    #matplotlib.rc('text', usetex=True)
+    matplotlib.rc('text', usetex=True)
     fig, ax = plt.subplots(figsize=(4.5, 3))
     plt.subplots_adjust(left=0.17, bottom=0.19, right=0.97, top=0.96)
 
     lines = ['-', '-.', '-.', '--', '--']
-    #colors = ['red', 'blue', 'orange', 'green', 'black']
+
+    # colors = ['red', 'blue', 'orange', 'green', 'black']
 
     def rgb_to_hex(rr, gg, bb):
         rgb = (rr, gg, bb)
         return '#%02x%02x%02x' % rgb
 
     colors = [rgb_to_hex(68, 166, 69), rgb_to_hex(47, 103, 223), rgb_to_hex(239, 117, 38), rgb_to_hex(
-    121, 90, 158), rgb_to_hex(34, 34, 34), rgb_to_hex(237, 65, 29)]
-        
+        121, 90, 158), rgb_to_hex(34, 34, 34), rgb_to_hex(237, 65, 29)]
+
     for (scheme, color, line, label) in zip(SCHEMES, colors, lines, labels):
         values, base = np.histogram(reward_all[scheme], bins=NUM_BINS)
         cumulative = np.cumsum(values)
@@ -140,7 +141,7 @@ def main():
     plt.ylabel('CDF')
     plt.xlabel('Average QoE')
     os.makedirs('imgs', exist_ok=True)
-    savefig('imgs/cdf.png')
+    savefig('imgs/cdf_batch2048.png')
     print(SCHEMES_REW)
 
 
