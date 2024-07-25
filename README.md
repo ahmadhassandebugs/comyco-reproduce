@@ -1,6 +1,8 @@
 # Reproduce comyco results
 
-Using [comyco-lin](https://github.com/godka/comyco-lin) repo to generate results.
+Using [comyco-lin](https://github.com/godka/comyco-lin) repo to generate results. 
+
+Use the commands below to easily set up virtual envs and requirements without worrying about version issues.
 
 ## Setup
 
